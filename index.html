@@ -58,16 +58,8 @@
             attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors'
         }).addTo(map);
 
-        // Mapowanie kodów powiatów na miasta powiatowe
-        const powiatToCity = {
-            "0201": "Białystok",
-            "0202": "Suwałki",
-            "0203": "Łomża",
-            // Dodaj więcej mapowań powiatów na miasta powiatowe
-        };
-
         // Wczytanie pliku GeoJSON
-        fetch('powiaty-medium.geojson')
+        fetch('powiaty-medium-updated-with-cities.geojson')
             .then(response => response.json())
             .then(geojsonData => {
                 L.geoJSON(geojsonData, {
@@ -88,7 +80,7 @@
 
         function toggleSelection(feature, layer) {
             var id = feature.properties.jpt_kod_je;
-            var name = powiatToCity[id] || "Nieznany powiat";
+            var name = feature.properties.city || "Nieznany powiat";
 
             if (selectedIds.has(id)) {
                 selectedIds.delete(id);
@@ -104,7 +96,10 @@
         function updateSelectedList() {
             selectedCounties.innerHTML = "";
             selectedIds.forEach(id => {
-                var name = powiatToCity[id] || "Nieznany powiat";
+                var name = Array.from(map._layers).find(layer => {
+                    return layer.feature && layer.feature.properties.jpt_kod_je === id;
+                }).feature.properties.city || "Nieznany powiat";
+
                 var li = document.createElement("li");
                 li.textContent = name;
                 selectedCounties.appendChild(li);
