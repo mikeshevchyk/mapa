@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <!-- Version: 1.4 -->
+    <!-- Version: 1.5 -->
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Mapa Polski - Powiaty</title>
@@ -45,7 +45,7 @@
         <button onclick="clearSelection()">Wyczyść wybór</button>
         <button onclick="copyToClipboard()">Kopiuj do schowka</button>
         <p id="clipboard-message" style="color: green;"></p>
-        <p class="version">Wersja: 1.4</p>
+        <p class="version">Wersja: 1.5</p>
     </div>
     <div id="map"></div>
 
@@ -58,6 +58,14 @@
             attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors'
         }).addTo(map);
 
+        // Mapowanie kodów powiatów na miasta powiatowe
+        const powiatToCity = {
+            "0201": "Białystok",
+            "0202": "Suwałki",
+            "0203": "Łomża",
+            // Dodaj więcej mapowań powiatów na miasta powiatowe
+        };
+
         // Wczytanie pliku GeoJSON
         fetch('powiaty-medium.geojson')
             .then(response => response.json())
@@ -69,7 +77,7 @@
                         });
                     },
                     style: function (feature) {
-                        return { color: '#333', fillColor: '#d3d3d3', fillOpacity: 0.1 };
+                        return { color: '#333', fillColor: '#d3d3d3', fillOpacity: 0.7 };
                     }
                 }).addTo(map);
             })
@@ -80,7 +88,7 @@
 
         function toggleSelection(feature, layer) {
             var id = feature.properties.jpt_kod_je;
-            var name = feature.properties.jpt_nazwa_;
+            var name = powiatToCity[id] || "Nieznany powiat";
 
             if (selectedIds.has(id)) {
                 selectedIds.delete(id);
@@ -96,10 +104,7 @@
         function updateSelectedList() {
             selectedCounties.innerHTML = "";
             selectedIds.forEach(id => {
-                var name = Array.from(map._layers).find(layer => {
-                    return layer.feature && layer.feature.properties.jpt_kod_je === id;
-                }).feature.properties.jpt_nazwa_;
-
+                var name = powiatToCity[id] || "Nieznany powiat";
                 var li = document.createElement("li");
                 li.textContent = name;
                 selectedCounties.appendChild(li);
