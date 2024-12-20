@@ -60,7 +60,15 @@
                     },
                     "geometry": {
                         "type": "Polygon",
-                        "coordinates": [[[23.0, 53.0], [23.5, 53.0], [23.5, 53.5], [23.0, 53.5], [23.0, 53.0]]]
+                        "coordinates": [
+                            [
+                                [23.210449, 53.141132],
+                                [23.297119, 53.156246],
+                                [23.365356, 53.098895],
+                                [23.34547, 53.04954],
+                                [23.210449, 53.141132]
+                            ]
+                        ]
                     }
                 },
                 {
@@ -71,7 +79,15 @@
                     },
                     "geometry": {
                         "type": "Polygon",
-                        "coordinates": [[[22.5, 54.0], [23.0, 54.0], [23.0, 54.5], [22.5, 54.5], [22.5, 54.0]]]
+                        "coordinates": [
+                            [
+                                [22.937012, 54.109542],
+                                [23.048584, 54.150513],
+                                [23.164673, 54.120912],
+                                [23.122711, 54.069885],
+                                [22.937012, 54.109542]
+                            ]
+                        ]
                     }
                 }
             ]
@@ -97,11 +113,11 @@
 
             if (selectedIds.includes(id)) {
                 selectedIds = selectedIds.filter(item => item !== id);
-                layer.setStyle({ fillColor: '#d3d3d3' });
+                layer.setStyle({ fillColor: '#d3d3d3', fillOpacity: 0.7 });
                 document.getElementById(id)?.remove();
             } else {
                 selectedIds.push(id);
-                layer.setStyle({ fillColor: '#FF6347' });
+                layer.setStyle({ fillColor: '#FF6347', fillOpacity: 0.5 });
                 var li = document.createElement("li");
                 li.id = id;
                 li.textContent = name;
@@ -114,7 +130,7 @@
             selectedCounties.innerHTML = "";
             map.eachLayer(function (layer) {
                 if (layer.feature) {
-                    layer.setStyle({ fillColor: '#d3d3d3' });
+                    layer.setStyle({ fillColor: '#d3d3d3', fillOpacity: 0.7 });
                 }
             });
         }
