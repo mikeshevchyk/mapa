@@ -9,7 +9,7 @@
     <style>
         #map {
             width: 75%;
-            height: 600px;
+            height: 900px;
             float: right;
         }
         #sidebar {
@@ -71,7 +71,6 @@
         function toggleSelection(feature, layer) {
             var id = feature.properties.jpt_kod_je;
             var name = feature.properties.jpt_nazwa_;
-            var postalCode = feature.properties.kod_pocztowy || "Brak kodu";
 
             if (selectedIds.includes(id)) {
                 selectedIds = selectedIds.filter(item => item !== id);
@@ -82,7 +81,7 @@
                 layer.setStyle({ fillColor: '#FF6347', fillOpacity: 0.5 });
                 var li = document.createElement("li");
                 li.id = id;
-                li.textContent = `${name} (Kod pocztowy: ${postalCode})`;
+                li.textContent = name;
                 selectedCounties.appendChild(li);
             }
         }
