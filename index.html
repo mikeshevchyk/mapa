@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <!-- Version: 1.1 -->
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Mapa Polski - Powiaty</title>
@@ -55,7 +56,7 @@
                 L.geoJSON(geojsonData, {
                     onEachFeature: function (feature, layer) {
                         layer.on('click', function (e) {
-                            toggleSelection(feature, e.target);
+                            toggleSelection(feature, layer);
                         });
                     },
                     style: function (feature) {
@@ -80,10 +81,12 @@
             } else {
                 selectedIds.push(id);
                 layer.setStyle({ fillColor: '#FF6347', fillOpacity: 0.5 });
-                var li = document.createElement("li");
-                li.id = id;
-                li.textContent = name;
-                selectedCounties.appendChild(li);
+                if (!document.getElementById(id)) {
+                    var li = document.createElement("li");
+                    li.id = id;
+                    li.textContent = name;
+                    selectedCounties.appendChild(li);
+                }
             }
         }
 
