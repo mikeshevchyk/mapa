@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <!-- Version: 2.3 -->
+    <!-- Version: 2.4 -->
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Mapa Polski - Powiaty</title>
@@ -45,7 +45,7 @@
         <button onclick="clearSelection()">Wyczyść wybór</button>
         <button onclick="copyToClipboard()">Kopiuj do schowka</button>
         <p id="clipboard-message" style="color: green;"></p>
-        <p class="version">Wersja: 2.3</p>
+        <p class="version">Wersja: 2.4</p>
     </div>
     <div id="map"></div>
 
@@ -58,7 +58,7 @@
             attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors'
         }).addTo(map);
 
-        // Debugowanie GeoJSON
+        // Wczytanie danych GeoJSON
         fetch('./powiaty-max.geojson')
             .then(response => {
                 if (!response.ok) {
@@ -70,7 +70,7 @@
             .then(geojsonData => {
                 console.log("GeoJSON Data Loaded:", geojsonData);
                 if (geojsonData.features && geojsonData.features.length > 0) {
-                    L.geoJSON(geojsonData, {
+                    const geoLayer = L.geoJSON(geojsonData, {
                         onEachFeature: function (feature, layer) {
                             console.log("Rendering Feature:", feature);
                             layer.on('click', function (e) {
@@ -78,42 +78,19 @@
                             });
                         },
                         style: function (feature) {
-                            console.log("Applying Style to Feature:", feature);
                             return { color: '#333', fillColor: '#d3d3d3', fillOpacity: 0.7 };
                         }
                     }).addTo(map);
+
+                    // Dopasowanie widoku mapy do danych GeoJSON
+                    map.fitBounds(geoLayer.getBounds());
                 } else {
                     console.warn("GeoJSON has no features.");
                 }
             })
             .catch(error => {
                 console.error('Error loading GeoJSON:', error);
-                // Dodanie warstwy testowej, jeśli GeoJSON się nie załaduje
-                const testGeoJSON = {
-                    "type": "FeatureCollection",
-                    "features": [
-                        {
-                            "type": "Feature",
-                            "properties": { "id": "1", "name": "Test Powiat 1" },
-                            "geometry": {
-                                "type": "Polygon",
-                                "coordinates": [
-                                    [
-                                        [19.0, 50.0],
-                                        [20.0, 50.0],
-                                        [20.0, 51.0],
-                                        [19.0, 51.0],
-                                        [19.0, 50.0]
-                                    ]
-                                ]
-                            }
-                        }
-                    ]
-                };
-                console.log("Loading fallback GeoJSON.");
-                L.geoJSON(testGeoJSON, {
-                    style: { color: '#333', fillColor: '#d3d3d3', fillOpacity: 0.7 }
-                }).addTo(map);
+                alert("Nie udało się załadować danych powiatów. Proszę sprawdzić plik GeoJSON.");
             });
 
         var selectedIds = new Set();
@@ -126,21 +103,18 @@
             if (selectedIds.has(id)) {
                 selectedIds.delete(id);
                 layer.setStyle({ fillColor: '#d3d3d3', fillOpacity: 0.7 });
-                updateSelectedList();
             } else {
                 selectedIds.add(id);
                 layer.setStyle({ fillColor: '#FF6347', fillOpacity: 0.5 });
-                updateSelectedList();
             }
+            updateSelectedList();
         }
 
         function updateSelectedList() {
             selectedCounties.innerHTML = "";
             selectedIds.forEach(id => {
-                var name = Array.from(map._layers).find(layer => {
-                    return layer.feature && layer.feature.properties.id === id;
-                }).feature.properties.name || "Nieznany powiat";
-
+                const layer = Array.from(map._layers).find(layer => layer.feature && layer.feature.properties.id === id);
+                const name = layer ? layer.feature.properties.name : "Nieznany powiat";
                 var li = document.createElement("li");
                 li.textContent = name;
                 selectedCounties.appendChild(li);
