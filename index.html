@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mapa Polski - Powiaty</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <style>
+        #map {
+            width: 75%;
+            height: 600px;
+            float: right;
+        }
+        #sidebar {
+            width: 23%;
+            height: 600px;
+            float: left;
+            padding: 10px;
+            overflow-y: auto;
+            border-right: 1px solid #ddd;
+        }
+        ul {
+            list-style-type: none;
+            padding: 0;
+        }
+        li {
+            margin: 5px 0;
+        }
+    </style>
+</head>
+<body>
+    <div id="sidebar">
+        <h2>Zaznaczone Powiaty</h2>
+        <ul id="selected-counties"></ul>
+        <button onclick="clearSelection()">Wyczyść wybór</button>
+        <button onclick="copyToClipboard()">Kopiuj do schowka</button>
+        <p id="clipboard-message" style="color: green;"></p>
+    </div>
+    <div id="map"></div>
+
+    <script>
+        // Inicjalizacja mapy
+        var map = L.map('map').setView([52.0693, 19.4803], 6);
+
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            maxZoom: 18,
+            attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors'
+        }).addTo(map);
+
+        // Warstwa GeoJSON powiatów
+        var selectedIds = [];
+        var selectedCounties = document.getElementById("selected-counties");
+
+        fetch('powiaty.geojson')
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`HTTP error! Status: ${response.status}`);
+                }
+                return response.json();
+            })
+            .then(data => {
+                L.geoJSON(data, {
+                    onEachFeature: function (feature, layer) {
+                        layer.on('click', function () {
+                            toggleSelection(feature, layer);
+                        });
+                    },
+                    style: function (feature) {
+                        return { color: '#333', fillColor: '#d3d3d3', fillOpacity: 0.7 };
+                    }
+                }).addTo(map);
+            })
+            .catch(error => {
+                console.error("Error loading GeoJSON:", error);
+            });
+
+        function toggleSelection(feature, layer) {
+            var id = feature.properties.jpt_kod_je;
+            var name = feature.properties.jpt_nazwa_;
+
+            if (selectedIds.includes(id)) {
+                selectedIds = selectedIds.filter(item => item !== id);
+                layer.setStyle({ fillColor: '#d3d3d3' });
+                document.getElementById(id)?.remove();
+            } else {
+                selectedIds.push(id);
+                layer.setStyle({ fillColor: '#FF6347' });
+                var li = document.createElement("li");
+                li.id = id;
+                li.textContent = name;
+                selectedCounties.appendChild(li);
+            }
+        }
+
+        function clearSelection() {
+            selectedIds = [];
+            selectedCounties.innerHTML = "";
+            map.eachLayer(function (layer) {
+                if (layer.feature) {
+                    layer.setStyle({ fillColor: '#d3d3d3' });
+                }
+            });
+        }
+
+        function copyToClipboard() {
+            var names = Array.from(selectedCounties.children).map(li => li.textContent).join(', ');
+            navigator.clipboard.writeText(names).then(() => {
+                document.getElementById("clipboard-message").textContent = "Skopiowano do schowka!";
+                setTimeout(() => {
+                    document.getElementById("clipboard-message").textContent = "";
+                }, 2000);
+            });
+        }
+    </script>
+</body>
+</html>
