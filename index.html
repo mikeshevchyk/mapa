@@ -54,8 +54,8 @@
             .then(geojsonData => {
                 L.geoJSON(geojsonData, {
                     onEachFeature: function (feature, layer) {
-                        layer.on('click', function () {
-                            toggleSelection(feature, layer);
+                        layer.on('click', function (e) {
+                            toggleSelection(feature, e.target);
                         });
                     },
                     style: function (feature) {
@@ -75,7 +75,8 @@
             if (selectedIds.includes(id)) {
                 selectedIds = selectedIds.filter(item => item !== id);
                 layer.setStyle({ fillColor: '#d3d3d3', fillOpacity: 0.7 });
-                document.getElementById(id)?.remove();
+                var listItem = document.getElementById(id);
+                if (listItem) listItem.remove();
             } else {
                 selectedIds.push(id);
                 layer.setStyle({ fillColor: '#FF6347', fillOpacity: 0.5 });
