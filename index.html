@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <!-- Version: 2.2 -->
+    <!-- Version: 2.3 -->
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Mapa Polski - Powiaty</title>
@@ -45,7 +45,7 @@
         <button onclick="clearSelection()">Wyczyść wybór</button>
         <button onclick="copyToClipboard()">Kopiuj do schowka</button>
         <p id="clipboard-message" style="color: green;"></p>
-        <p class="version">Wersja: 2.2</p>
+        <p class="version">Wersja: 2.3</p>
     </div>
     <div id="map"></div>
 
@@ -58,28 +58,63 @@
             attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors'
         }).addTo(map);
 
-        // Wczytanie pełnych danych GeoJSON dla powiatów
+        // Debugowanie GeoJSON
         fetch('powiaty-max.geojson')
             .then(response => {
-                console.log("Fetching GeoJSON:", response.status);
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                console.log("GeoJSON response status:", response.status);
                 return response.json();
             })
             .then(geojsonData => {
-                console.log("Loaded GeoJSON Data:", geojsonData);
-                L.geoJSON(geojsonData, {
-                    onEachFeature: function (feature, layer) {
-                        console.log("Rendering Feature:", feature);
-                        layer.on('click', function (e) {
-                            toggleSelection(feature, layer);
-                        });
-                    },
-                    style: function (feature) {
-                        console.log("Applying Style to Feature:", feature);
-                        return { color: '#333', fillColor: '#d3d3d3', fillOpacity: 0.7 };
-                    }
-                }).addTo(map);
+                console.log("GeoJSON Data Loaded:", geojsonData);
+                if (geojsonData.features && geojsonData.features.length > 0) {
+                    L.geoJSON(geojsonData, {
+                        onEachFeature: function (feature, layer) {
+                            console.log("Rendering Feature:", feature);
+                            layer.on('click', function (e) {
+                                toggleSelection(feature, layer);
+                            });
+                        },
+                        style: function (feature) {
+                            console.log("Applying Style to Feature:", feature);
+                            return { color: '#333', fillColor: '#d3d3d3', fillOpacity: 0.7 };
+                        }
+                    }).addTo(map);
+                } else {
+                    console.warn("GeoJSON has no features.");
+                }
             })
-            .catch(error => console.error('Error loading GeoJSON:', error));
+            .catch(error => {
+                console.error('Error loading GeoJSON:', error);
+                // Dodanie warstwy testowej, jeśli GeoJSON się nie załaduje
+                const testGeoJSON = {
+                    "type": "FeatureCollection",
+                    "features": [
+                        {
+                            "type": "Feature",
+                            "properties": { "id": "1", "name": "Test Powiat 1" },
+                            "geometry": {
+                                "type": "Polygon",
+                                "coordinates": [
+                                    [
+                                        [19.0, 50.0],
+                                        [20.0, 50.0],
+                                        [20.0, 51.0],
+                                        [19.0, 51.0],
+                                        [19.0, 50.0]
+                                    ]
+                                ]
+                            }
+                        }
+                    ]
+                };
+                console.log("Loading fallback GeoJSON.");
+                L.geoJSON(testGeoJSON, {
+                    style: { color: '#333', fillColor: '#d3d3d3', fillOpacity: 0.7 }
+                }).addTo(map);
+            });
 
         var selectedIds = new Set();
         var selectedCounties = document.getElementById("selected-counties");
