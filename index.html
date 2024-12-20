@@ -59,7 +59,7 @@
         }).addTo(map);
 
         // Debugowanie GeoJSON
-        fetch('powiaty-max.geojson')
+        fetch('./powiaty-max.geojson')
             .then(response => {
                 if (!response.ok) {
                     throw new Error(`HTTP error! status: ${response.status}`);
