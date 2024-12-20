@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <!-- Version: 1.5 -->
+    <!-- Version: 1.6 -->
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Mapa Polski - Powiaty</title>
@@ -45,7 +45,7 @@
         <button onclick="clearSelection()">Wyczyść wybór</button>
         <button onclick="copyToClipboard()">Kopiuj do schowka</button>
         <p id="clipboard-message" style="color: green;"></p>
-        <p class="version">Wersja: 1.5</p>
+        <p class="version">Wersja: 1.6</p>
     </div>
     <div id="map"></div>
 
@@ -59,7 +59,7 @@
         }).addTo(map);
 
         // Wczytanie pliku GeoJSON
-        fetch('powiaty-medium-updated-with-cities.geojson')
+        fetch('powiaty-max.geojson')
             .then(response => response.json())
             .then(geojsonData => {
                 L.geoJSON(geojsonData, {
@@ -79,8 +79,8 @@
         var selectedCounties = document.getElementById("selected-counties");
 
         function toggleSelection(feature, layer) {
-            var id = feature.properties.jpt_kod_je;
-            var name = feature.properties.city || "Nieznany powiat";
+            var id = feature.properties.id;
+            var name = feature.properties.name || "Nieznany powiat";
 
             if (selectedIds.has(id)) {
                 selectedIds.delete(id);
@@ -97,8 +97,8 @@
             selectedCounties.innerHTML = "";
             selectedIds.forEach(id => {
                 var name = Array.from(map._layers).find(layer => {
-                    return layer.feature && layer.feature.properties.jpt_kod_je === id;
-                }).feature.properties.city || "Nieznany powiat";
+                    return layer.feature && layer.feature.properties.id === id;
+                }).feature.properties.name || "Nieznany powiat";
 
                 var li = document.createElement("li");
                 li.textContent = name;
