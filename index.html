@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <!-- Version: 1.9 -->
+    <!-- Version: 2.0 -->
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Mapa Polski - Powiaty</title>
@@ -45,7 +45,7 @@
         <button onclick="clearSelection()">Wyczyść wybór</button>
         <button onclick="copyToClipboard()">Kopiuj do schowka</button>
         <p id="clipboard-message" style="color: green;"></p>
-        <p class="version">Wersja: 1.9</p>
+        <p class="version">Wersja: 2.0</p>
     </div>
     <div id="map"></div>
 
@@ -58,20 +58,30 @@
             attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors'
         }).addTo(map);
 
-        // Wczytanie pliku GeoJSON
+        // Wczytanie pliku GeoJSON z debugowaniem
         fetch('powiaty-max.geojson')
-            .then(response => response.json())
+            .then(response => {
+                console.log("Response Status:", response.status);
+                return response.json();
+            })
             .then(geojsonData => {
+                console.log("GeoJSON Data Loaded:", geojsonData);
                 L.geoJSON(geojsonData, {
                     onEachFeature: function (feature, layer) {
+                        console.log("Rendering Feature:", feature);
                         layer.on('click', function (e) {
                             toggleSelection(feature, layer);
                         });
                     },
                     style: function (feature) {
+                        console.log("Applying Style to Feature:", feature);
                         return { color: '#333', fillColor: '#d3d3d3', fillOpacity: 0.7 };
                     }
                 }).addTo(map);
+
+                // Dopasowanie mapy do granic powiatów
+                const bounds = L.geoJSON(geojsonData).getBounds();
+                map.fitBounds(bounds);
             })
             .catch(error => console.error('Error loading GeoJSON:', error));
 
