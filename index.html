@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <!-- Version: 1.1 -->
+    <!-- Version: 1.2 -->
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Mapa Polski - Powiaty</title>
@@ -20,6 +20,7 @@
             padding: 10px;
             overflow-y: auto;
             border-right: 1px solid #ddd;
+            position: relative;
         }
         ul {
             list-style-type: none;
@@ -28,16 +29,23 @@
         li {
             margin: 5px 0;
         }
+        .version {
+            position: absolute;
+            bottom: 10px;
+            left: 10px;
+            font-size: 12px;
+            color: #666;
+        }
     </style>
 </head>
 <body>
-    
-        <p style="position: absolute; bottom: 10px; left: 10px; font-size: 12px;">Wersja: 1.1</p>
+    <div id="sidebar">
         <h2>Zaznaczone Powiaty</h2>
         <ul id="selected-counties"></ul>
         <button onclick="clearSelection()">Wyczyść wybór</button>
         <button onclick="copyToClipboard()">Kopiuj do schowka</button>
         <p id="clipboard-message" style="color: green;"></p>
+        <p class="version">Wersja: 1.2</p>
     </div>
     <div id="map"></div>
 
