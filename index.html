@@ -48,32 +48,48 @@
             attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors'
         }).addTo(map);
 
-        // Warstwa GeoJSON powiatów
+        // Dane GeoJSON osadzone bezpośrednio w kodzie
+        var geojsonData = {
+            "type": "FeatureCollection",
+            "features": [
+                {
+                    "type": "Feature",
+                    "properties": {
+                        "jpt_kod_je": "0201",
+                        "jpt_nazwa_": "Powiat Białystok"
+                    },
+                    "geometry": {
+                        "type": "Polygon",
+                        "coordinates": [[[23.0, 53.0], [23.5, 53.0], [23.5, 53.5], [23.0, 53.5], [23.0, 53.0]]]
+                    }
+                },
+                {
+                    "type": "Feature",
+                    "properties": {
+                        "jpt_kod_je": "0202",
+                        "jpt_nazwa_": "Powiat Suwałki"
+                    },
+                    "geometry": {
+                        "type": "Polygon",
+                        "coordinates": [[[22.5, 54.0], [23.0, 54.0], [23.0, 54.5], [22.5, 54.5], [22.5, 54.0]]]
+                    }
+                }
+            ]
+        };
+
+        L.geoJSON(geojsonData, {
+            onEachFeature: function (feature, layer) {
+                layer.on('click', function () {
+                    toggleSelection(feature, layer);
+                });
+            },
+            style: function (feature) {
+                return { color: '#333', fillColor: '#d3d3d3', fillOpacity: 0.7 };
+            }
+        }).addTo(map);
+
         var selectedIds = [];
         var selectedCounties = document.getElementById("selected-counties");
-
-        fetch('powiaty.geojson')
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error(`HTTP error! Status: ${response.status}`);
-                }
-                return response.json();
-            })
-            .then(data => {
-                L.geoJSON(data, {
-                    onEachFeature: function (feature, layer) {
-                        layer.on('click', function () {
-                            toggleSelection(feature, layer);
-                        });
-                    },
-                    style: function (feature) {
-                        return { color: '#333', fillColor: '#d3d3d3', fillOpacity: 0.7 };
-                    }
-                }).addTo(map);
-            })
-            .catch(error => {
-                console.error("Error loading GeoJSON:", error);
-            });
 
         function toggleSelection(feature, layer) {
             var id = feature.properties.jpt_kod_je;
